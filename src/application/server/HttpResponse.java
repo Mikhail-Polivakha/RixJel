@@ -1,6 +1,4 @@
-package application;
-
-import application.ServerResponseStatusCode;
+package application.server;
 
 import java.util.Map;
 
@@ -9,7 +7,7 @@ import java.util.Map;
  * @created 11/6/2020
  */
 
-public class HttpResponse implements PropertyHolder {
+public class HttpResponse {
     private final String ROW_DELIMITER = "\r\n";
 
     private Map<String, String> responseHeaders;
@@ -17,8 +15,11 @@ public class HttpResponse implements PropertyHolder {
     private ServerResponseStatusCode statusCode;
     private StringBuilder responseMessage;
 
+    @ExternalProperty(name = "server-name")
+    private String serverName;
+
     public HttpResponse() {
-        responseHeaders.put("application.Server", "tomcat-2.0");
+        responseHeaders.put("application.Server", serverName);
         responseHeaders.put("Connection", "Close");
     }
 

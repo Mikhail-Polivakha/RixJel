@@ -1,4 +1,4 @@
-package application;
+package application.server;
 
 import java.util.Arrays;
 import java.util.Collections;

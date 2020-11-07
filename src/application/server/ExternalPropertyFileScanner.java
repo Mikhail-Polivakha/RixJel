@@ -1,4 +1,7 @@
-package application;
+package application.server;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,10 +17,16 @@ import java.util.Map;
  * @author Mikhail Polivakha
  * @created 11/6/2020
  */
-public class PropertiesScanner {
+
+@Component
+public class ExternalPropertyFileScanner {
 
     private final String PROPERTIES_FILE_NAME = "server.properties";
     private final String SOURCE_FOLDER_NAME = "out";
+
+    @Autowired
+    private PropertiesAssignResolver propertiesAssignResolver;
+
     public void scanPropertiesFile() throws URISyntaxException, FileNotFoundException {
         File currentSourceCodeFile = new File(Server.class
                 .getProtectionDomain()
@@ -63,6 +72,8 @@ public class PropertiesScanner {
             final String[] propertiesArray = properties.split("=");
             final Map<String, String> propertiesMap = buildPropertiesMap(propertiesArray);
 
+            propertiesAssignResolver.setPropertiesMap(propertiesMap);
+            propertiesAssignResolver.assignProperties();
 
         } catch (IOException exception) {
             throw new IOException("Unable to open PropertiesFile");

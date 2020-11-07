@@ -1,6 +1,4 @@
-package application;
-
-import org.springframework.stereotype.Component;
+package application.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,9 +15,12 @@ import java.util.concurrent.TimeoutException;
  * @created 11/6/2020
  */
 
-public class Server implements PropertyHolder {
+public class Server {
     private AsynchronousServerSocketChannel serverSocketChannel;
+
+    @ExternalProperty(name = "buffer-size")
     private static int BUFFER_SIZE;
+
     private static final String HTTP_SERVER_RESPONSE_HEADER =
             "HTTP/1.1 200 OK\n" +
             "application.Server: tomcat-2.0\n" +
@@ -27,10 +28,7 @@ public class Server implements PropertyHolder {
             "Content-Length: %s\n" +
             "Connection: close\n\n";
 
-    private final RequestHandler requestHandler;
-
-    public Server(RequestHandler requestHandler) {
-        this.requestHandler = requestHandler;
+    public Server() {
     }
 
     public void bootstrap() {
@@ -85,7 +83,7 @@ public class Server implements PropertyHolder {
             final HttpResponse httpResponse = new HttpResponse();
 
 
-            final String body = requestHandler.handle(httpRequest, httpResponse);
+            final String body = ""; /*requestHandler.handle(httpRequest, httpResponse);*/
 
             final String responseText = String.format(HTTP_SERVER_RESPONSE_HEADER, body.length()) + body;
             ByteBuffer responseBytes = ByteBuffer.wrap(responseText.getBytes());
