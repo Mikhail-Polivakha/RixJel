@@ -1,5 +1,6 @@
 package application;
 
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -55,22 +56,45 @@ public class PropertiesAssignResolver {
         final ExternalProperty externalPropertyAnnotation =
                 field.getAnnotation(ExternalProperty.class);
 
-        String nameOfTheFieldToInject = externalPropertyAnnotation.name();
+        String nameOfTheExternalFilePropertyToInject = externalPropertyAnnotation.name();
 
-        if (nameOfTheFieldToInject == null) {
-            nameOfTheFieldToInject = field.getName();
+        if (nameOfTheExternalFilePropertyToInject == null || nameOfTheExternalFilePropertyToInject.isEmpty()) {
+            nameOfTheExternalFilePropertyToInject = field.getName();
+        }
 
-            final String valueOfCurrentProperty = propertiesMap.get(nameOfTheFieldToInject);
-            if (valueOfCurrentProperty != null) {
+        setToPassedFieldValue(field, targetObject, nameOfTheExternalFilePropertyToInject)
+    }
+
+    private void setToPassedFieldValue(Field field,
+                                       Object targetObject,
+                                       String nameOfTheExternalFilePropertyToInject)
+            throws IllegalAccessException {
+        final String valueOfCurrentProperty = propertiesMap.get(nameOfTheExternalFilePropertyToInject);
+
+        if (valueOfCurrentProperty != null) {
+
+            field.setAccessible(true);
+            final Class<?> fieldType = field.getType();
+
+            if (fieldType.getSimpleName().equals(String.class.getSimpleName())) {
+
+                // Value is a string
+                field.set(targetObject, valueOfCurrentProperty);
 
             } else {
-                // todo: logging - if property was missed
-                logger.warning("property '" + nameOfTheFieldToInject + "' was not found." +
-                        " Set default value as");
+
+                // Value is a Number (integer, long, point here that value will NEVER be float or double)
+                if (StringUtils.isNumeric(valueOfCurrentProperty)) {
+                    field.set(targetObject, Integer.parseInt(valueOfCurrentProperty));
+                } else {
+                    throw new
+                }
+
             }
-
         } else {
-
+            // todo: logging - if property was missed
+            logger.warning("property '" + nameOfTheExternalFilePropertyToInject + "' was not found." +
+                    " Set default value as");
         }
     }
 }
